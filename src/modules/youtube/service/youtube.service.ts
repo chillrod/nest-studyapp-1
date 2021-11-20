@@ -8,12 +8,6 @@ import * as puppeteer from 'puppeteer';
 export class YoutubeService {
   private youtubeContent: Youtube[] = [];
 
-  async returnMusic() {
-    return {
-      content: this.youtubeContent,
-    };
-  }
-
   async returnSearchedMusic(searchText: string) {
     const replaceNameSpace = searchText.replace('', '+');
 
@@ -47,9 +41,16 @@ export class YoutubeService {
         this.youtubeContent.push(...mapAllVideos);
       })();
     } catch (err) {
-      console.log(err);
+      throw new Error(err);
     } finally {
-      return this.youtubeContent;
+      const shallowYoutubeContent = this.youtubeContent;
+
+      this.youtubeContent = [];
+
+      return {
+        search: searchText,
+        videos: shallowYoutubeContent,
+      };
     }
   }
 }
