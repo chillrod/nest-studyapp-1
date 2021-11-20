@@ -12,6 +12,8 @@ export class YoutubeService {
     const replaceNameSpace = searchText.replace('', '+');
 
     const videoLinkXpath = "//*[@id='video-title']";
+    const videoImageXPath =
+      '//*[@id="dismissible"]/ytd-thumbnail/a/yt-img-shadow/img';
 
     try {
       await (async () => {
@@ -24,16 +26,42 @@ export class YoutubeService {
         );
 
         const getVideoLinks = await page.$x(videoLinkXpath);
+        const videoImages = await page.$x(videoImageXPath);
 
         const mapAllVideos = await Promise.all(
           getVideoLinks.map(async (videoLink) => {
-            const links = await page.evaluate(
+            const links: string = await page.evaluate(
               (element) => element.href,
               videoLink,
             );
 
-            return links;
+            const title: string = await page.evaluate(
+              (element) => element.textContent,
+              videoLink,
+            );
+
+            return {
+              videoLink: links,
+              videoTitle: title,
+            };
           }),
+        );
+
+        const mapAllImages = await Promise.all(
+          videoImages.map(async (videoImage) => {
+            const image: string = await page.evaluate(
+              (element) => element.src,
+              videoImage,
+            );
+
+            return {
+              image,
+            };
+          }),
+        );
+        console.log(
+          '🚀 ~ file: youtube.service.ts ~ line 62 ~ YoutubeService ~ await ~ mapAllImages',
+          { mapAllImages },
         );
 
         await browser.close();
@@ -48,7 +76,7 @@ export class YoutubeService {
       this.youtubeContent = [];
 
       return {
-        search: searchText,
+        searchText,
         videos: shallowYoutubeContent,
       };
     }

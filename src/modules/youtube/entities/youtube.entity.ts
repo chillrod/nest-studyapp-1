@@ -1,3 +1,5 @@
 export type Youtube = {
-  searchText: string;
+  searchText?: string;
+  videoLink: string;
+  videoTitle?: string;
 };
